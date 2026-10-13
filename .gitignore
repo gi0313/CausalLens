@@ -1,0 +1,17 @@
+#Ignore the data folder
+data/
+
+#Ignore the .DS_Store file on macOS
+.DS_Store
+
+#Ignore virtual environments and Python cache files
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+#Ignore streamlit
+.streamlit/
+
+#Ignore Untitled-1.py
+/Untitled-1.py

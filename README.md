@@ -1,0 +1,2 @@
+## This repository contains our two-phase senior capstone project developing a causal-semantic architecture for Explainable AI in predictive maintenance.
+## By mapping raw time-series sensor data to a formal OWL/RDF ontology, this system allows users to execute SPARQL queries and DoWhy causal math to simulate "what-if" failure scenarios on turbofan engines.

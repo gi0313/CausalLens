@@ -64,6 +64,14 @@
 #    Data properties
 #################################################################
 
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#sensorValue
+:sensorValue rdf:type owl:DatatypeProperty ;
+             rdfs:subPropertyOf owl:topDataProperty ;
+             rdfs:domain :SensorReading ;
+             rdfs:range xsd:double ;
+             rdfs:comment "Stores the numeric value of a SensorReading." .
+
+
 ###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/cycleNumber
 :cycleNumber rdf:type owl:DatatypeProperty ;
              rdfs:subPropertyOf owl:topDataProperty ;

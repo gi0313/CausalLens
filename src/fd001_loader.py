@@ -5,6 +5,10 @@ from pathlib import Path
 import pandas as pd
 
 # Name the columns in the same order as the data file.
+# setting_1: altitude (height above sea level).
+# setting_2: Mach number (speed compared with the speed of sound).
+# setting_3: throttle resolver angle (requested engine power).
+# Keep the original setting values; their stored scale needs care.
 columns = ["engine_id", "cycle", "setting_1", "setting_2", "setting_3"]
 for number in range(1, 22):
     columns.append(f"sensor_{number}")

@@ -32,6 +32,14 @@ if __name__ == "__main__":
     folder = Path(__file__).resolve().parent.parent / "data/raw"
     test_engine_count = 0
 
+    # Explain the operating settings before showing their statistics.
+    print("setting_1: altitude (height above sea level).")
+    print("setting_2: Mach number (speed / speed of sound; no unit).")
+    print("setting_3: throttle resolver angle (requested engine power).")
+    print("FD001 uses one operating condition, with setting_3 fixed at 100.")
+    print("Settings 1 and 2 stay close to zero. Original values are kept.")
+    print("Confirm the stored altitude and throttle scales before converting units.")
+
     # Load and summarize the training and test files separately.
     for name in ["train", "test"]:
         data = load_fd001(folder / f"{name}_FD001.txt")

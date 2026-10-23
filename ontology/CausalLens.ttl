@@ -1,0 +1,189 @@
+@prefix : <http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/> .
+
+<http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/hasCycle
+:hasCycle rdf:type owl:ObjectProperty ;
+          rdfs:subPropertyOf owl:topObjectProperty ;
+          rdfs:domain :EngineRun ;
+          rdfs:range :CycleRecord ;
+          rdfs:comment "Connects an EngineRun to a CycleRecord." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/hasOperatingCondition
+:hasOperatingCondition rdf:type owl:ObjectProperty ;
+                       rdfs:subPropertyOf owl:topObjectProperty ;
+                       rdfs:domain :CycleRecord ;
+                       rdfs:range :OperatingCondition ;
+                       rdfs:comment "Connects a CycleRecord to the OperatingCondition for that cycle." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/hasReading
+:hasReading rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf owl:topObjectProperty ;
+            rdfs:domain :CycleRecord ;
+            rdfs:range :SensorReading ;
+            rdfs:comment "Connects a CycleRecord to a SensorReading." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/hasRun
+:hasRun rdf:type owl:ObjectProperty ;
+        rdfs:subPropertyOf owl:topObjectProperty ;
+        rdfs:domain :Engine ;
+        rdfs:range :EngineRun ;
+        rdfs:comment "Connects an Engine to its EngineRun." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/measuredBy
+:measuredBy rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf owl:topObjectProperty ;
+            rdfs:domain :SensorReading ;
+            rdfs:range :Sensor ;
+            rdfs:comment "Connects a SensorReading to the Sensor that produced the measurement." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/monitorsComponent
+:monitorsComponent rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf owl:topObjectProperty ;
+                   rdfs:domain :Sensor ;
+                   rdfs:range :Component ;
+                   rdfs:comment "Connects a Sensor to the engine Component that it is associated with." .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#sensorValue
+:sensorValue rdf:type owl:DatatypeProperty ;
+             rdfs:subPropertyOf owl:topDataProperty ;
+             rdfs:domain :SensorReading ;
+             rdfs:range xsd:double ;
+             rdfs:comment "Stores the numeric value of a SensorReading." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/cycleNumber
+:cycleNumber rdf:type owl:DatatypeProperty ;
+             rdfs:subPropertyOf owl:topDataProperty ;
+             rdfs:domain :CycleRecord ;
+             rdfs:range xsd:integer ;
+             rdfs:comment "Stores the cycle number for a CycleRecord." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/sensorCode
+:sensorCode rdf:type owl:DatatypeProperty ;
+            rdfs:subPropertyOf owl:topDataProperty ;
+            rdfs:domain :Sensor ;
+            rdfs:range xsd:string ;
+            rdfs:comment "Stores the code used to identify a Sensor." .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Component
+:Component rdf:type owl:Class ;
+           rdfs:comment "Represents a physical part of the engine that can be related to sensor data or failure information." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/CycleRecord
+:CycleRecord rdf:type owl:Class ;
+             rdfs:comment "Represents one operating cycle or one time step in an engine run." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Engine
+:Engine rdf:type owl:Class ;
+        rdfs:comment "Represents one simulated turbofan engine unit being analyzed in CausalLens." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/EngineRun
+:EngineRun rdf:type owl:Class ;
+           rdfs:comment "Represents all recorded operating cycles for one simulated engine unit in one dataset split." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/FailureMode
+:FailureMode rdf:type owl:Class ;
+             rdfs:comment "Represents a type of engine failure or degradation that the system may analyze." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/OperatingCondition
+:OperatingCondition rdf:type owl:Class ;
+                    rdfs:comment "Represents the operating condition associated with an engine run or cycle." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Sensor
+:Sensor rdf:type owl:Class ;
+        rdfs:comment "Represents a sensor measurement type used in the C-MAPSS data." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/SensorReading
+:SensorReading rdf:type owl:Class ;
+               rdfs:comment "Represents one sensor measurement recorded for an engine cycle." .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Condition_1
+:Condition_1 rdf:type owl:NamedIndividual ,
+                      :OperatingCondition ;
+             rdfs:comment "Represents one example operating condition in the ontology." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Cycle_1
+:Cycle_1 rdf:type owl:NamedIndividual ,
+                  :CycleRecord ;
+         :hasOperatingCondition :Condition_1 ;
+         :hasReading :Reading_T2_Cycle1 ;
+         :cycleNumber 1 ;
+         rdfs:comment "Represents one example operating cycle in the ontology." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Engine_1
+:Engine_1 rdf:type owl:NamedIndividual ,
+                   :Engine ;
+          :hasRun :Run_1 ;
+          rdfs:comment "Represents one example engine individual in the ontology." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Fan
+:Fan rdf:type owl:NamedIndividual ,
+              :Component ;
+     rdfs:comment "Represents one example engine component used in the ontology prototype." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Reading_T2_Cycle1
+:Reading_T2_Cycle1 rdf:type owl:NamedIndividual ,
+                            :SensorReading ;
+                   :measuredBy :Sensor_T2 ;
+                   rdfs:comment "Represents one example sensor reading recorded during Cycle 1." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Run_1
+:Run_1 rdf:type owl:NamedIndividual ,
+                :EngineRun ;
+       :hasCycle :Cycle_1 ;
+       rdfs:comment "Represents one example engine run in the ontology." .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Sensor_T2
+:Sensor_T2 rdf:type owl:NamedIndividual ,
+                    :Sensor ;
+           :monitorsComponent :Fan ;
+           :sensorCode "T2" ;
+           rdfs:comment "Represents one example sensor used in the ontology." .
+
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi

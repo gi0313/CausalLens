@@ -29,7 +29,7 @@ def summarize_data(data):
 if __name__ == "__main__":
     from fd001_loader import load_fd001
 
-    folder = Path(__file__).resolve().parent.parent / "data/raw"
+    folder = Path(__file__).resolve().parent.parent / "data" #Change filepath
     test_engine_count = 0
 
     # Explain the operating settings before showing their statistics.

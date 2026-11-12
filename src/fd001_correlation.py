@@ -1,3 +1,4 @@
+from math import isnan
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -44,18 +45,37 @@ def plot_correlation(matrix, title="Pearson correlation matrix"):
     # Gray means undefined. White means a correlation near zero.
     colors = plt.get_cmap("coolwarm").copy()
     colors.set_bad("gray")
-    figure, axes = plt.subplots(figsize=(15, 13))
+    figure, axes = plt.subplots(figsize=(13, 12))
     image = axes.matshow(matrix, cmap=colors, vmin=-1, vmax=1)
+
+    # Label defined cells. Leave the gray cells blank.
+    for row_number, row in enumerate(matrix.to_numpy()):
+        for column_number, value in enumerate(row):
+            if isnan(value):
+                continue
+            label = f"{value:.2f}"
+            if label == "-0.00":
+                label = "0.00"
+            color = "white" if abs(value) >= 0.75 else "black"
+            axes.text(
+                column_number, row_number, label,
+                ha="center", va="center", fontsize=7, color=color,
+            )
+
     axes.set_xticks(range(len(labels)), labels, rotation=90, fontsize=9)
     axes.set_yticks(range(len(labels)), labels, fontsize=9)
     axes.xaxis.tick_bottom()
-    figure.colorbar(image, ax=axes, shrink=0.8, label="Pearson correlation")
-    axes.set_title(title, pad=15)
+    axes.tick_params(length=0, pad=3)
+    figure.colorbar(
+        image, ax=axes, shrink=0.8, fraction=0.035, pad=0.015,
+        label="Pearson correlation",
+    )
+    axes.set_title(title, pad=7)
     figure.legend(
         handles=[Patch(facecolor="gray", label="Undefined (constant variable)")],
-        loc="lower left", bbox_to_anchor=(0.23, 0.005), frameon=False,
+        loc="lower center", frameon=False, fontsize=9,
     )
-    figure.tight_layout(rect=(0, 0.03, 1, 1))
+    figure.tight_layout(pad=0.4, rect=(0, 0.025, 1, 1))
     return figure
 
 
@@ -65,13 +85,9 @@ if __name__ == "__main__":
     data = load_fd001(folder / "raw/train_FD001.txt")
     engine = get_engine(data, engine_id)
     matrix = correlate_engine(data, engine_id)
-    print(f"FD001 train engine {engine_id}: all {len(engine)} recorded cycles")
-    print(matrix.round(3).to_string())
-    print("NaN / gray means undefined for a constant variable, not zero.")
-    print("Correlation does not establish causation.")
 
-    # Display the matrix. The returned figure can also be saved by its caller.
-    figure = plot_correlation(
+    # Show the heatmap.
+    plot_correlation(
         matrix,
         title=f"FD001 train engine {engine_id}: Pearson correlation ({len(engine)} cycles)",
     )

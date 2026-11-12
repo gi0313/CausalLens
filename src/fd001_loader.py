@@ -1,4 +1,5 @@
 from numbers import Integral
+from argparse import ArgumentParser
 from pathlib import Path
 
 import pandas as pd
@@ -171,8 +172,11 @@ def load_rul(filename, test_data):
     return rul[["dataset", "split", "engine_id", "last_cycle", "remaining_cycles"]]
 
 
-# Loads engine 1 when you press Run.
+# Load a sample engine when this file is run directly.
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--save", action="store_true", help="Save the selected engine and observation CSVs.")
+    args = parser.parse_args()
     folder = Path(__file__).resolve().parent.parent / "data"
     engine_id = 100
     data = load_fd001(folder / "raw/train_FD001.txt")
@@ -189,12 +193,13 @@ if __name__ == "__main__":
     ]
     print(f"LPC-exit temperature ID: {example['observation_id']}")
 
-    # Save the selected engine for sharing.
-    output = folder / "exports"
-    output.mkdir(exist_ok=True)
-    engine.to_csv(output / f"train_FD001_engine_{engine_id}.csv", index=False)
-    print(f"Saved data/exports/train_FD001_engine_{engine_id}.csv")
-    observations.to_csv(
-        output / f"train_FD001_engine_{engine_id}_observations.csv", index=False
-    )
-    print(f"Saved data/exports/train_FD001_engine_{engine_id}_observations.csv")
+    # Save files for sharing only when --save is requested.
+    if args.save:
+        output = folder / "exports"
+        output.mkdir(exist_ok=True)
+        engine.to_csv(output / f"train_FD001_engine_{engine_id}.csv", index=False)
+        print(f"Saved data/exports/train_FD001_engine_{engine_id}.csv")
+        observations.to_csv(
+            output / f"train_FD001_engine_{engine_id}_observations.csv", index=False
+        )
+        print(f"Saved data/exports/train_FD001_engine_{engine_id}_observations.csv")

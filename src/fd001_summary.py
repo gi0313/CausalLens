@@ -42,9 +42,6 @@ def summarize_data(data):
 if __name__ == "__main__":
     folder = Path(__file__).resolve().parent.parent / "data/raw"
 
-    output = folder.parent / "exports"
-    output.mkdir(exist_ok=True)
-
     # Load and summarize the training and test files separately.
     for name in ["train", "test"]:
         data = load_fd001(folder / f"{name}_FD001.txt")
@@ -63,9 +60,6 @@ if __name__ == "__main__":
         # Keep small values visible and avoid displaying negative zero.
         display = summary["statistics"].round(8).replace(-0.0, 0.0)
         print(display.to_string(float_format="{:.8g}".format))
-        summary["statistics"].to_csv(output / f"{name}_FD001_statistics.csv")
-        summary["duplicate_records"].to_csv(output / f"{name}_FD001_duplicate_records.csv", index=False)
-        summary["duplicate_counts"].to_csv(output / f"{name}_FD001_duplicate_counts.csv", index=False)
 
     # RUL gives one remaining-life answer for each test engine.
     # The loop ends with test data. Reuse it to match the RUL answers.
@@ -74,4 +68,3 @@ if __name__ == "__main__":
     print(f"Answers: {len(rul)}")
     print(f"Missing values: {rul.isna().sum().sum()}")
     print(rul[["remaining_cycles"]].describe().round(2).to_string())
-    rul[["remaining_cycles"]].describe().to_csv(output / "RUL_FD001_statistics.csv")

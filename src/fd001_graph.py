@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -31,16 +32,20 @@ def plot_sensor(data, engine_id, reading):
 
 
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--save", action="store_true", help="Save the engine trajectory image.")
+    args = parser.parse_args()
     folder = Path(__file__).resolve().parent.parent / "data"
     engine_id = 1
     reading = "lpc_exit_temperature"
     data = load_fd001(folder / "raw/train_FD001.txt")
     figure = plot_sensor(data, engine_id, reading)
 
-    # Save the same graph that opens when you press Run.
-    output = folder / "exports"
-    output.mkdir(exist_ok=True)
-    filename = output / f"train_FD001_engine_{engine_id}_{reading}.png"
-    figure.savefig(filename, dpi=150)
-    print(f"Saved {filename}")
+    # Save files for sharing only when --save is requested.
+    if args.save:
+        output = folder / "exports"
+        output.mkdir(exist_ok=True)
+        filename = output / f"train_FD001_engine_{engine_id}_{reading}.png"
+        figure.savefig(filename, dpi=150)
+        print(f"Saved {filename}")
     plt.show()

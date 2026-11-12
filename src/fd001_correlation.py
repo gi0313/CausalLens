@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import pandas as pd
+from matplotlib.patches import Patch
 
 if __package__:
     from .fd001_loader import get_engine, load_fd001
@@ -11,95 +11,68 @@ else:
     from fd001_sensors import sensors
 
 
-def correlate_engine(
-    data, engine_id, reference="lpc_exit_temperature", method="pearson"
-):
-    # Compare measurements within one engine, without IDs or operating settings.
-    if reference not in sensors or method not in ["pearson", "spearman"]:
-        raise ValueError("Choose a named measurement and pearson or spearman.")
+def correlate_engine(data, engine_id):
+    # Use all recorded cycles for one engine and only the 24 measured variables.
     engine = get_engine(data, engine_id)
     if len(engine) < 3:
         raise ValueError("Choose an engine with at least three recorded cycles.")
-    readings = engine[list(sensors)]
+    columns = ["altitude", "mach_number", "throttle_resolver_angle"] + list(sensors)
+    readings = engine[columns]
     if (
         readings.isna().any().any()
         or readings.isin([float("inf"), float("-inf")]).any().any()
     ):
-        raise ValueError("Correlation needs checked, finite measurements.")
-    constant_readings = readings.columns[readings.nunique() <= 1].tolist()
-    readings = readings.drop(columns=constant_readings)
-    if reference not in readings or len(readings.columns) < 2:
-        raise ValueError(
-            "Choose a changing reference and at least two changing measurements."
-        )
+        raise ValueError("Correlation needs checked, finite measurements and settings.")
 
-    # corr compares all pairs. corrwith compares each reading with the reference.
-    matrix = readings.corr(method=method)
-    if method == "spearman":
-        # Spearman is Pearson on ranks. Pandas does the ranking too.
-        readings = readings.rank()
-    with_reference = readings.drop(columns=reference).corrwith(
-        readings[reference], method="pearson"
+    # Keep constants. Pandas returns NaN because their correlation is undefined.
+    return readings.corr(method="pearson")
+
+
+def plot_correlation(matrix, title="Pearson correlation matrix"):
+    # Use the shared measurement names on both axes.
+    names = {
+        "altitude": "Altitude",
+        "mach_number": "Mach number",
+        "throttle_resolver_angle": "Throttle resolver angle",
+    }
+    for reading in sensors:
+        names[reading] = sensors[reading]["name"]
+    labels = []
+    for column in matrix.columns:
+        labels.append(names[column])
+
+    # Gray means undefined. White means a correlation near zero.
+    colors = plt.get_cmap("coolwarm").copy()
+    colors.set_bad("gray")
+    figure, axes = plt.subplots(figsize=(15, 13))
+    image = axes.matshow(matrix, cmap=colors, vmin=-1, vmax=1)
+    axes.set_xticks(range(len(labels)), labels, rotation=90, fontsize=9)
+    axes.set_yticks(range(len(labels)), labels, fontsize=9)
+    axes.xaxis.tick_bottom()
+    figure.colorbar(image, ax=axes, shrink=0.8, label="Pearson correlation")
+    axes.set_title(title, pad=15)
+    figure.legend(
+        handles=[Patch(facecolor="gray", label="Undefined (constant variable)")],
+        loc="lower left", bbox_to_anchor=(0.23, 0.005), frameon=False,
     )
-    return matrix, with_reference, constant_readings
+    figure.tight_layout(rect=(0, 0.03, 1, 1))
+    return figure
 
 
 if __name__ == "__main__":
     folder = Path(__file__).resolve().parent.parent / "data"
     engine_id = 1
-    reference = "lpc_exit_temperature"
-    comparison = "hpc_exit_temperature"
     data = load_fd001(folder / "raw/train_FD001.txt")
     engine = get_engine(data, engine_id)
-    output = folder / "exports"
-    output.mkdir(exist_ok=True)
+    matrix = correlate_engine(data, engine_id)
+    print(f"FD001 train engine {engine_id}: all {len(engine)} recorded cycles")
+    print(matrix.round(3).to_string())
+    print("NaN / gray means undefined for a constant variable, not zero.")
+    print("Correlation does not establish causation.")
 
-    # Save both correlation matrices and compare the reference scores.
-    reference_scores = pd.DataFrame()
-    for method in ["pearson", "spearman"]:
-        matrix, with_reference, constant_readings = correlate_engine(
-            data, engine_id, reference, method
-        )
-        matrix.to_csv(
-            output / f"train_FD001_engine_{engine_id}_{method}_correlations.csv"
-        )
-        reference_scores[method.title()] = with_reference
-    reference_scores.to_csv(
-        output / f"train_FD001_engine_{engine_id}_correlations_with_{reference}.csv"
+    # Display the matrix. The returned figure can also be saved by its caller.
+    figure = plot_correlation(
+        matrix,
+        title=f"FD001 train engine {engine_id}: Pearson correlation ({len(engine)} cycles)",
     )
-    print(f"Train engine {engine_id}: correlations with {reference}")
-    print(reference_scores.round(4).to_string())
-    print(f"Excluded constant measurements: {', '.join(constant_readings)}")
-    print("These are associations, not established causes.")
-
-    # Pandas draws the correlation comparison and measurement scatter plot.
-    labels = {}
-    for reading in reference_scores.index:
-        labels[reading] = sensors[reading]["name"]
-    axes = reference_scores.rename(index=labels).plot.barh(
-        figsize=(10, 7),
-        xlim=(-1, 1),
-        xlabel="Correlation coefficient",
-        title=f"Train engine {engine_id}: associations with {sensors[reference]['name']}",
-    )
-    plt.tight_layout()
-    plt.savefig(
-        output / f"train_FD001_engine_{engine_id}_correlations_with_{reference}.png",
-        dpi=150,
-    )
-
-    axes = engine.plot.scatter(
-        x=reference,
-        y=comparison,
-        figsize=(7, 5),
-        xlabel=f"{sensors[reference]['name']} ({sensors[reference]['unit']})",
-        ylabel=f"{sensors[comparison]['name']} ({sensors[comparison]['unit']})",
-        title=f"FD001 train engine {engine_id}",
-    )
-    plt.tight_layout()
-    plt.savefig(
-        output / f"train_FD001_engine_{engine_id}_{reference}_vs_{comparison}.png",
-        dpi=150,
-    )
-    print(f"Saved correlation tables and graphs in {output}")
     plt.show()

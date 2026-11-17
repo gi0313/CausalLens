@@ -5,20 +5,27 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 if __package__:
-    from .fd001_loader import get_engine, load_fd001
+    from .fd001_loader import columns, get_engine, load_fd001_splits
     from .fd001_sensors import sensors
 else:
-    from fd001_loader import get_engine, load_fd001
+    from fd001_loader import columns, get_engine, load_fd001_splits
     from fd001_sensors import sensors
 
 
 def correlate_engine(data, engine_id):
-    # Use all recorded cycles for one engine and only the 24 measured variables.
-    engine = get_engine(data, engine_id)
-    if len(engine) < 3:
-        raise ValueError("Choose an engine with at least three recorded cycles.")
-    columns = ["altitude", "mach_number", "throttle_resolver_angle"] + list(sensors)
-    readings = engine[columns]
+    # Keep the single-engine option for the frontend.
+    return correlate_cycles(get_engine(data, engine_id))
+
+
+def correlate_cycles(data):
+    # Accept one split's cycle rows, from one engine or many.
+    if data["split"].nunique() != 1:
+        raise ValueError("Choose one train or test split for each heatmap.")
+    if len(data) < 3:
+        raise ValueError("Choose at least three recorded cycles.")
+
+    # Leave engine IDs, cycle numbers, and metadata out of the calculation.
+    readings = data[columns[2:]]
     if (
         readings.isna().any().any()
         or readings.isin([float("inf"), float("-inf")]).any().any()
@@ -81,14 +88,13 @@ def plot_correlation(matrix, title="Pearson correlation matrix"):
 
 if __name__ == "__main__":
     folder = Path(__file__).resolve().parent.parent / "data"
-    engine_id = 1
-    data = load_fd001(folder / "raw/train_FD001.txt")
-    engine = get_engine(data, engine_id)
-    matrix = correlate_engine(data, engine_id)
+    splits = load_fd001_splits(folder / "raw")
 
-    # Show the heatmap.
-    plot_correlation(
-        matrix,
-        title=f"FD001 train engine {engine_id}: Pearson correlation ({len(engine)} cycles)",
-    )
+    # Make one heatmap per split using every recorded cycle.
+    for split, data in splits.items():
+        engines = data["engine_id"].nunique()
+        plot_correlation(
+            correlate_cycles(data),
+            title=f"FD001 {split}: Pearson correlation ({engines} engines, {len(data):,} cycles)",
+        )
     plt.show()

@@ -84,6 +84,15 @@ def load_fd001(filename, split=None):
     return data.reset_index(drop=True)
 
 
+def load_fd001_splits(folder):
+    # Read each file once and keep the two sets of engines separate.
+    folder = Path(folder)
+    return {
+        "train": load_fd001(folder / "train_FD001.txt"),
+        "test": load_fd001(folder / "test_FD001.txt"),
+    }
+
+
 def get_engine(data, engine_id):
     # Select one engine from the data that was already loaded.
     if (

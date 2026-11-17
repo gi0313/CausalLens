@@ -2,9 +2,9 @@ from pathlib import Path
 
 # Support the Run button and imports from the project folder.
 if __package__:
-    from .fd001_loader import columns, load_fd001, load_rul
+    from .fd001_loader import columns, load_fd001_splits
 else:
-    from fd001_loader import columns, load_fd001, load_rul
+    from fd001_loader import columns, load_fd001_splits
 
 
 def summarize_data(data):
@@ -38,14 +38,32 @@ def summarize_data(data):
     return summary
 
 
+def summarize_splits(splits):
+    train = summarize_data(splits["train"])
+    test = summarize_data(splits["test"])
+    # Train engine 1 and test engine 1 count as two separate runs.
+    return {
+        "train": train,
+        "test": test,
+        "overall": {
+            "records": train["records"] + test["records"],
+            "engines": train["engines"] + test["engines"],
+        },
+    }
+
+
 # Print the examples only when this file is started directly.
 if __name__ == "__main__":
     folder = Path(__file__).resolve().parent.parent / "data/raw"
 
-    # Load and summarize the training and test files separately.
+    splits = load_fd001_splits(folder)
+    summaries = summarize_splits(splits)
+    overall = summaries["overall"]
+    print(f"Overall FD001: {overall['records']:,} records across {overall['engines']} engine runs.")
+
+    # Show separate statistics for the two splits.
     for name in ["train", "test"]:
-        data = load_fd001(folder / f"{name}_FD001.txt")
-        summary = summarize_data(data)
+        summary = summaries[name]
         print(f"\n{name.upper()} FD001")
         print(f"Records: {summary['records']} | Engines: {summary['engines']}")
         print(f"Missing values: {summary['missing_values']}")
@@ -60,11 +78,3 @@ if __name__ == "__main__":
         # Keep small values visible and avoid displaying negative zero.
         display = summary["statistics"].round(8).replace(-0.0, 0.0)
         print(display.to_string(float_format="{:.8g}".format))
-
-    # RUL gives one remaining-life answer for each test engine.
-    # The loop ends with test data. Reuse it to match the RUL answers.
-    rul = load_rul(folder / "RUL_FD001.txt", data)
-    print("\nRUL FD001")
-    print(f"Answers: {len(rul)}")
-    print(f"Missing values: {rul.isna().sum().sum()}")
-    print(rul[["remaining_cycles"]].describe().round(2).to_string())

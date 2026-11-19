@@ -64,12 +64,25 @@
 #    Data properties
 #################################################################
 
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#sensorName
+:sensorName rdf:type owl:DatatypeProperty ;
+            rdfs:subPropertyOf owl:topDataProperty ;
+            rdfs:domain :Sensor ;
+            rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#sensorUnit
+:sensorUnit rdf:type owl:DatatypeProperty ;
+            rdfs:subPropertyOf owl:topDataProperty ;
+            rdfs:domain :Sensor ;
+            rdfs:range xsd:string .
+
+
 ###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#sensorValue
 :sensorValue rdf:type owl:DatatypeProperty ;
              rdfs:subPropertyOf owl:topDataProperty ;
              rdfs:domain :SensorReading ;
-             rdfs:range xsd:double ;
-             rdfs:comment "Stores the numeric value of a SensorReading." .
+             rdfs:range xsd:double .
 
 
 ###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/cycleNumber
@@ -86,6 +99,11 @@
             rdfs:domain :Sensor ;
             rdfs:range xsd:string ;
             rdfs:comment "Stores the code used to identify a Sensor." .
+
+
+###  http://www.w3.org/2002/07/owl#topDataProperty
+owl:topDataProperty rdfs:domain :Sensor ;
+                    rdfs:range xsd:string .
 
 
 #################################################################
@@ -136,6 +154,251 @@
 #    Individuals
 #################################################################
 
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Bleed_Air_System
+:Bleed_Air_System rdf:type owl:NamedIndividual ,
+                           :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Combustor
+:Combustor rdf:type owl:NamedIndividual ,
+                    :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Core
+:Core rdf:type owl:NamedIndividual ,
+               :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Fan_Bypass
+:Fan_Bypass rdf:type owl:NamedIndividual ,
+                     :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Fan_Controller_N1
+:Fan_Controller_N1 rdf:type owl:NamedIndividual ,
+                            :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Fan_Inlet_LPT_Exit
+:Fan_Inlet_LPT_Exit rdf:type owl:NamedIndividual .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Fuel_System
+:Fuel_System rdf:type owl:NamedIndividual ,
+                      :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#HPC
+:HPC rdf:type owl:NamedIndividual ,
+              :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#HPT
+:HPT rdf:type owl:NamedIndividual ,
+              :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#High_Pressure_Shaft_N2
+:High_Pressure_Shaft_N2 rdf:type owl:NamedIndividual ,
+                                 :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#LPC
+:LPC rdf:type owl:NamedIndividual ,
+              :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#LPT
+:LPT rdf:type owl:NamedIndividual ,
+              :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Low_Pressure_Shaft_N1
+:Low_Pressure_Shaft_N1 rdf:type owl:NamedIndividual ,
+                                :Component .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_BPR
+:Sensor_BPR rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :Core ,
+                               :Fan_Bypass ;
+            :sensorName "Bypass ratio" ;
+            :sensorUnit "unitless" ;
+            :sensorCode "BPR" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_NRc
+:Sensor_NRc rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :High_Pressure_Shaft_N2 ;
+            :sensorName "Corrected core speed" ;
+            :sensorUnit "rpm" ;
+            :sensorCode "NRc" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_NRf
+:Sensor_NRf rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :Low_Pressure_Shaft_N1 ;
+            :sensorName "Corrected fan speed" ;
+            :sensorUnit "rpm" ;
+            :sensorCode "NRf" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_Nc
+:Sensor_Nc rdf:type owl:NamedIndividual ,
+                    :Sensor ;
+           :monitorsComponent :High_Pressure_Shaft_N2 ;
+           :sensorName "Core speed" ;
+           :sensorUnit "rpm" ;
+           :sensorCode "Nc" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_Nf
+:Sensor_Nf rdf:type owl:NamedIndividual ,
+                    :Sensor ;
+           :monitorsComponent :Low_Pressure_Shaft_N1 ;
+           :sensorName "Fan speed" ;
+           :sensorUnit "rpm" ;
+           :sensorCode "Nf" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_Nf_dmd
+:Sensor_Nf_dmd rdf:type owl:NamedIndividual ,
+                        :Sensor ;
+               :monitorsComponent :Fan_Controller_N1 ;
+               :sensorName "Requested fan speed" ;
+               :sensorUnit "rpm" ;
+               :sensorCode "Nf_dmd" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_P15
+:Sensor_P15 rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :Fan_Bypass ;
+            :sensorName "Bypass-duct pressure" ;
+            :sensorUnit "psia" ;
+            :sensorCode "P15" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_P2
+:Sensor_P2 rdf:type owl:NamedIndividual ,
+                    :Sensor ;
+           :monitorsComponent :Fan ;
+           :sensorName "Fan-inlet pressure" ;
+           :sensorUnit "psia" ;
+           :sensorCode "P2" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_P30
+:Sensor_P30 rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :HPC ;
+            :sensorName "HPC-exit total pressure" ;
+            :sensorUnit "psia" ;
+            :sensorCode "P30" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_PCNfR_dmd
+:Sensor_PCNfR_dmd rdf:type owl:NamedIndividual ,
+                           :Sensor ;
+                  :monitorsComponent :Fan_Controller_N1 ;
+                  :sensorName "Requested corrected fan speed" ;
+                  :sensorCode "PCNfR_dmd" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_Ps30
+:Sensor_Ps30 rdf:type owl:NamedIndividual ,
+                      :Sensor ;
+             :monitorsComponent :HPC ;
+             :sensorName "HPC-exit static pressure" ;
+             :sensorUnit "psia" ;
+             :sensorCode "Ps30" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_T24
+:Sensor_T24 rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :LPC ;
+            :sensorName "LPC-exit temperature" ;
+            :sensorUnit "°R" ;
+            :sensorCode "T24" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_T30
+:Sensor_T30 rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :HPC ;
+            :sensorName "HPC-exit temperature" ;
+            :sensorUnit "°R" ;
+            :sensorCode "T30" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_T50
+:Sensor_T50 rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :LPT ;
+            :sensorName "LPT-exit temperature" ;
+            :sensorUnit "°R" ;
+            :sensorCode "T50" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_W31
+:Sensor_W31 rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :HPT ;
+            :sensorName "HPT cooling-air flow" ;
+            :sensorUnit "lbm/s" ;
+            :sensorCode "W31" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_W32
+:Sensor_W32 rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :LPT ;
+            :sensorName "LPT cooling-air flow" ;
+            :sensorUnit "lbm/s" ;
+            :sensorCode "W32" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_epr
+:Sensor_epr rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :LPT ,
+                               :Fan ;
+            :sensorName "Pressure ratio P50/P2" ;
+            :sensorUnit "unitless" ;
+            :sensorCode "epr" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_farB
+:Sensor_farB rdf:type owl:NamedIndividual ,
+                      :Sensor ;
+             :monitorsComponent :Combustor ;
+             :sensorName "Burner fuel-air ratio" ;
+             :sensorUnit "unitless" ;
+             :sensorCode "farB" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_htBleed
+:Sensor_htBleed rdf:type owl:NamedIndividual ,
+                         :Sensor ;
+                :monitorsComponent :Bleed_Air_System ;
+                :sensorName "Bleed enthalpy" ;
+                :sensorCode "htBleed" .
+
+
+###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3#Sensor_phi
+:Sensor_phi rdf:type owl:NamedIndividual ,
+                     :Sensor ;
+            :monitorsComponent :Fuel_System ,
+                               :HPC ;
+            :sensorName "Fuel flow / HPC static pressure" ;
+            :sensorUnit "pps/psi" ;
+            :sensorCode "phi" .
+
+
 ###  http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/Condition_1
 :Condition_1 rdf:type owl:NamedIndividual ,
                       :OperatingCondition ;
@@ -182,6 +445,8 @@
 :Sensor_T2 rdf:type owl:NamedIndividual ,
                     :Sensor ;
            :monitorsComponent :Fan ;
+           :sensorName "Fan-inlet temperature" ;
+           :sensorUnit "°R" ;
            :sensorCode "T2" ;
            rdfs:comment "Represents one example sensor used in the ontology." .
 

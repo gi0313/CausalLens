@@ -1,107 +1,98 @@
 from pathlib import Path
-from rdflib import Graph, Namespace, RDF, Literal, XSD
 
-# Import the cleaned sensor observations from the FD001 loader
-try:
+from rdflib import RDF, RDFS, XSD, Graph, Literal, Namespace
+
+# Support both the VS Code Run button and imports from the repo root.
+if __package__:
     from .fd001_loader import get_observations
-except ImportError:
+    from .fd001_sensors import sensors
+else:
     from fd001_loader import get_observations
+    from fd001_sensors import sensors
 
-# Namespace for the CausalLens ontology
 CAUSALLENS = Namespace(
     "http://www.semanticweb.org/zainabalemara/ontologies/2026/9/untitled-ontology-3/"
 )
-
-# Path to the ontology file
 ONTOLOGY_FILE = Path(__file__).resolve().parent.parent / "ontology/CausalLens.ttl"
 
 
 def load_ontology():
-    graph = Graph()
-    graph.parse(ONTOLOGY_FILE, format="turtle")
-    return graph
+    # Read the saved definitions and example individuals into memory.
+    return Graph().parse(ONTOLOGY_FILE, format="turtle")
 
 
-def map_engine(engine_data, measurement="lpc_exit_temperature"):
-    graph = load_ontology()
+def run_iri(engine_data):
+    # The same engine number can appear in different splits.
+    first = engine_data.iloc[0]
+    return CAUSALLENS[f"{first['dataset']}_{first['split']}_Run_{first['engine_id']}"]
 
-    # Get the engine, dataset, and train/test information
-    engine_id = int(engine_data.iloc[0]["engine_id"])
-    dataset = engine_data.iloc[0]["dataset"]
-    split = engine_data.iloc[0]["split"]
 
-    # Create unique identifiers for the engine and its run
-    engine = CAUSALLENS[f"{dataset}_{split}_Engine_{engine_id}"]
-    run = CAUSALLENS[f"{dataset}_{split}_Run_{engine_id}"]
+def map_engine(engine_data, measurement="lpc_exit_temperature", *, graph=None):
+    # Map one run. Pass measurement=None to include all sensors.
+    runs = engine_data[["dataset", "split", "engine_id"]].drop_duplicates()
+    if len(runs) != 1:
+        raise ValueError("Select one engine from one dataset and split.")
+    if measurement is not None and measurement not in sensors:
+        raise ValueError(f"Unknown measurement: {measurement}")
+    if graph is None:
+        graph = load_ontology()
 
-    # Add the engine and run to the RDF graph
-    graph.add((engine, RDF.type, CAUSALLENS.Engine))
-    graph.add((run, RDF.type, CAUSALLENS.EngineRun))
-    graph.add((engine, CAUSALLENS.hasRun, run))
+    cl = CAUSALLENS
+    run = run_iri(engine_data)
+    first = runs.iloc[0]
+    dataset = first["dataset"]
+    split = first["split"]
+    engine_id = int(first["engine_id"])
+    engine = cl[f"{dataset}_{split}_Engine_{engine_id}"]
+    graph.add((engine, RDF.type, cl.Engine))
+    graph.add((run, RDF.type, cl.EngineRun))
+    graph.add((engine, cl.hasRun, run))
+    graph.add((run, cl.datasetName, Literal(dataset)))
+    graph.add((run, cl.datasetSplit, Literal(split)))
+    graph.add((run, cl.engineNumber, Literal(engine_id)))
 
-    # Get the cleaned sensor observations from the loader
+    # Older samples can map readings even if they omit operating settings.
+    setting_fields = {
+        "altitude": cl.altitude,
+        "mach_number": cl.machNumber,
+        "throttle_resolver_angle": cl.throttleResolverAngle,
+    }
+    settings = [name for name in setting_fields if name in engine_data.columns]
+    for row in engine_data.itertuples(index=False):
+        cycle = cl[row.cycle_id]
+        graph.add((cycle, RDF.type, cl.CycleRecord))
+        graph.add((run, cl.hasCycle, cycle))
+        graph.add((cycle, cl.cycleNumber, Literal(int(row.cycle))))
+        if settings:
+            condition = cl[f"{row.cycle_id}/settings"]
+            graph.add((cycle, cl.hasOperatingCondition, condition))
+            graph.add((condition, RDF.type, cl.OperatingCondition))
+            for name in settings:
+                value = Literal(float(getattr(row, name)), datatype=XSD.double)
+                graph.add((condition, setting_fields[name], value))
+
+    # Get values and shared sensor details from the loader.
     observations = get_observations(engine_data)
+    if measurement is not None:
+        observations = observations[observations["measurement"] == measurement]
 
-    # Keep only the sensor measurement being mapped
-    observations = observations[
-        observations["measurement"] == measurement
-    ]
+    for key, rows in observations.groupby("measurement", sort=False):
+        symbol = sensors[key]["symbol"]
+        # Reuse the sensor and component links defined in the ontology.
+        sensor = graph.value(predicate=cl.sensorCode, object=Literal(symbol), any=False)
+        if sensor is None:
+            raise ValueError(f"Sensor {symbol} is missing from the ontology.")
 
-    # Go through each sensor observation
-    for _, row in observations.iterrows():
-        cycle_number = int(row["cycle"])
-        symbol = row["symbol"]
-
-        # Create a unique identifier for the cycle
-        cycle = CAUSALLENS[
-            f"{dataset}_{split}_Engine_{engine_id}_Cycle_{cycle_number}"
-        ]
-
-        # Add the cycle and connect it to the engine run
-        graph.add((cycle, RDF.type, CAUSALLENS.CycleRecord))
-        graph.add((run, CAUSALLENS.hasCycle, cycle))
-
-        # Store the cycle number
-        graph.add(
-            (
-                cycle,
-                CAUSALLENS.cycleNumber,
-                Literal(cycle_number, datatype=XSD.integer),
-            )
-        )
-
-        # Create the sensor identifier
-        sensor = CAUSALLENS[f"Sensor_{symbol}"]
-
-        # Create a unique identifier for the sensor reading
-        reading = CAUSALLENS[
-            f"{dataset}_{split}_Engine_{engine_id}"
-            f"_Cycle_{cycle_number}_{symbol}_Reading"
-        ]
-
-        # Add the sensor and its sensor code
-        graph.add((sensor, RDF.type, CAUSALLENS.Sensor))
-
-        graph.add(
-            (
-                sensor,
-                CAUSALLENS.sensorCode,
-                Literal(symbol),
-            )
-        )
-
-        # Add the sensor reading and connect it to the cycle and sensor
-        graph.add((reading, RDF.type, CAUSALLENS.SensorReading))
-        graph.add((cycle, CAUSALLENS.hasReading, reading))
-        graph.add((reading, CAUSALLENS.measuredBy, sensor))
-
-        # Store the actual numeric sensor value
-        graph.add(
-            (
-                reading,
-                CAUSALLENS.sensorValue,
-                Literal(float(row["value"]), datatype=XSD.double),
-            )
-        )
+        # Each reading links to its cycle and keeps its original ID.
+        for row in rows.itertuples(index=False):
+            cycle = cl[row.observation_id.rsplit("/", 1)[0]]
+            reading = cl[row.observation_id]
+            graph.add((reading, RDF.type, cl.SensorReading))
+            graph.add((cycle, cl.hasReading, reading))
+            graph.add((reading, cl.measuredBy, sensor))
+            graph.add((reading, cl.sensorValue, Literal(float(row.value), datatype=XSD.double)))
+            graph.add((reading, cl.observationId, Literal(row.observation_id)))
+            label = f"{dataset} {split} engine {engine_id} cycle {row.cycle} {symbol}"
+            graph.add((reading, RDFS.label, Literal(label)))
 
     return graph

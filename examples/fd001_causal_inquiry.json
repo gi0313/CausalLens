@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "inquiry_id": "FD001-P30-T30-001",
+  "question": "Does a change in HPC-exit total pressure (P30) have a defensible causal effect on HPC-exit temperature (T30) during the documented FD001 HPC degradation scenario?",
+  "dataset": {
+    "name": "NASA C-MAPSS",
+    "subset": "FD001",
+    "fault_mode": "HPC degradation",
+    "source_url": "https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data"
+  },
+  "candidate_source": {
+    "key": "hpc_exit_total_pressure",
+    "symbol": "P30",
+    "name": "HPC-exit total pressure",
+    "component": "HPC",
+    "unit": "psia"
+  },
+  "target": {
+    "key": "hpc_exit_temperature",
+    "symbol": "T30",
+    "name": "HPC-exit temperature",
+    "component": "HPC",
+    "unit": "°R"
+  },
+  "selection_reason": "Both measurements are documented FD001 readings associated with the HPC component. They are used to test the integration contract, not to assert that one physically causes the other.",
+  "analysis": {
+    "status": "not_evaluated",
+    "causal_direction_established": false,
+    "method": null,
+    "effect_estimate": null,
+    "counterfactual_answer": null
+  },
+  "evidence": [
+    {
+      "evidence_id": "NASA-CMAPSS-FD001",
+      "evidence_type": "dataset_documentation",
+      "source_title": "C-MAPSS Jet Engine Simulated Data",
+      "source_url": "https://data.nasa.gov/dataset/cmapss-jet-engine-simulated-data",
+      "supports": "FD001 contains one documented HPC degradation fault mode."
+    },
+    {
+      "evidence_id": "NASA-CMAPSS-SENSOR-TABLE",
+      "evidence_type": "variable_definition",
+      "source_title": "Damage Propagation Modeling for Aircraft Engine Run-to-Failure Simulation",
+      "source_url": "https://data.nasa.gov/dataset/damage-propagation-modeling-for-aircraft-engine-run-to-failure-simulation",
+      "supports": "P30 and T30 are documented C-MAPSS measurements."
+    }
+  ],
+  "assumptions": [
+    "The metadata in fd001_sensors.py accurately represents the cited NASA sensor definitions.",
+    "The source and target roles are prototype inputs and do not establish a causal direction."
+  ],
+  "limitations": [
+    "No causal discovery or causal inference method has been executed.",
+    "Sensor measurements are observations, not physical interventions.",
+    "The temporal and multi engine structure of FD001 is not modeled here.",
+    "This inquiry cannot support a maintenance recommendation."
+  ]
+}
